@@ -96,7 +96,7 @@
             .char-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 25px; }
         }
 
-        /* 크로스 브라우징: 카드가 세로 레이아웃을 확실히 갖도록 display: flex; flex-direction: column 추가 */
+        /* 크로스 브라우징 */
         .char-card { border: 3px solid #000; border-radius: 12px; overflow: hidden; cursor: pointer; transition: 0.3s; background: #fff; box-shadow: 3px 3px 0px #000; display: flex; flex-direction: column; }
         .char-card:hover { transform: translate(-2px, -2px); box-shadow: 5px 5px 0px #000; }
         @media (min-width: 769px) {
@@ -109,7 +109,6 @@
             .char-card-img { border-bottom-width: 4px; font-size: 2.5rem; }
         }
         
-        /* 크로스 브라우징: 이미지 아래 여백 방지 및 완벽한 중앙 정렬을 위해 display: block 및 object-position 추가 */
         .char-card-img img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
         @media (min-width: 769px) {
             .char-card-img img { object-fit: contain; background: #f0f0f0; }
@@ -130,7 +129,6 @@
         
         .modal-img { width: 100%; aspect-ratio: 1 / 1; background: #f5f5f5; border-bottom: 3px solid #000; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-family: 'Black Han Sans', sans-serif; flex-shrink: 0; overflow: hidden; }
         
-        /* 크로스 브라우징: 모달 이미지 처리 */
         .modal-img img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
         
         .modal-info { flex: 1; padding: 15px; overflow-y: auto; }
@@ -202,7 +200,6 @@
         .bubble-row { display: flex; gap: 8px; max-width: 85%; }
         .bubble-profile { width: 35px; height: 35px; border-radius: 12px; border: 2px solid #000; background: #fff; overflow: hidden; flex-shrink: 0; }
         
-        /* 크로스 브라우징: 단톡방 프사도 동일하게 적용 */
         .bubble-profile img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
         
         .bubble-content { display: flex; flex-direction: column; }
@@ -428,7 +425,6 @@
         startTyping(initialScript);
         startWidgetUpdate();
         
-        // 브라우저 정책상 사용자 클릭 후 자동 재생 시도
         bgm.play().then(() => musicBtn.innerText = "🔊").catch(() => {});
 
         function randomRequest() {
@@ -499,18 +495,32 @@
         typingActive = false;
     }
 
+    // ★★★ 핵심: 이곳에 세계관 관련 대답 로직을 대폭 추가했습니다. ★★★
     async function sendMessage() {
         const input = document.getElementById('user-input');
         const userText = input.value.trim();
         if(!userText || typingActive) return;
         input.value = "";
+        
         await createChatBox("나", userText, true);
         typingActive = true;
         await new Promise(r => setTimeout(r, 800));
-        let response = responses[Math.floor(Math.random() * responses.length)];
-        if(userText.includes("핵") || userText.includes("방법")) {
-            response = { name: "독고결", text: "모든 괴담은 '핵'을 가진다. 그걸 파괴하는 게 우리 방식이다." };
+        
+        let response = responses[Math.floor(Math.random() * responses.length)]; // 기본 랜덤 대답
+        
+        // 세계관 키워드에 따른 맞춤형 대답 분기
+        if(userText.includes("실체화") || userText.includes("현상") || userText.includes("임계점")) {
+            response = { name: "콘", text: "아! 실체화 현상이요? 특정 소문이나 괴담에 대한 사람들의 믿음과 공포가 '임계점'을 돌파하면, 그 존재가 진짜 물리적인 실체를 갖추고 나타나는 현상이에요! 감정이 강렬할수록 더 빨리 증폭된답니다!" };
+        } else if(userText.includes("핵") || userText.includes("해결") || userText.includes("파괴") || userText.includes("방법")) {
+            response = { name: "독고결", text: "단순히 힘으로 제압하는 건 임시방편일 뿐이다. 모든 실체화된 괴담은 핵심 규칙이나 물건인 '핵'을 가진다. 그걸 파괴하거나, 규칙을 역이용하거나, 사람들의 믿음을 끊어내야 완전히 소멸하지." };
+        } else if(userText.includes("세계관") || userText.includes("비밀") || userText.includes("법칙") || userText.includes("믿음")) {
+            response = { name: "문삼도", text: "...그래. 이 세계의 가장 큰 비밀 하나만 알려주지. '군중의 믿음이 현실을 조작한다'. 사람들이 진짜라고 믿으면 그게 현실로 튀어나오는 피곤한 세상이야." };
+        } else if(userText.includes("서울") || userText.includes("배경") || userText.includes("이곳")) {
+            response = { name: "문삼도", text: "겉보기엔 다들 돈 벌고 연애하느라 바쁜 평범한 도시 같지만, 뒷골목엔 온갖 괴담과 이상한 사건들이 득실거리는 곳이지." };
+        } else if(userText.includes("의뢰") || userText.includes("해결사") || userText.includes("무슨 일") || userText.includes("경찰")) {
+            response = { name: "강다구", text: "마! 우리가 '만사 오케이 해결사' 아입니까! 분실물 찾기, 연애 상담부터 황당한 인터넷 밈 사건에 흉악한 괴담 해결까지! 경찰이 하기 애매한 일은 우리가 다 맡아 함다!" };
         }
+        
         await createChatBox(response.name, response.text);
         typingActive = false;
     }
